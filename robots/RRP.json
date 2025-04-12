@@ -1,0 +1,96 @@
+{
+  "name": "RRP",
+  "links": [
+    {
+      "name": "base",
+      "visual": {
+        "geometry": {
+          "type": "box",
+          "size": [0.5, 0.5, 1.0]
+        },
+        "origin": {
+          "xyz": [0, 0, 0.5],
+          "rpy": [0, 0, 0]
+        }
+      }
+    },
+    {
+      "name": "upper_arm",
+      "visual": {
+        "geometry": {
+          "type": "box",
+          "size": [1.0, 0.25, 0.25]
+        },
+        "origin": {
+          "xyz": [0.5, 0, 0],
+          "rpy": [0, 0, 0]
+        }
+      }
+    },
+    {
+      "name": "lower_arm",
+      "visual": {
+        "geometry": {
+          "type": "box",
+          "size": [1.0, 0.25, 0.25]
+        },
+        "origin": {
+          "xyz": [0.5, 0, 0],
+          "rpy": [0, 0, 0]
+        }
+      }
+    },
+    {
+      "name": "tool",
+      "visual": {
+        "geometry": {
+          "type": "box",
+          "size": [0.1, 0.1, 0.25]
+        },
+        "origin": {
+          "xyz": [0, 0, 0.125],
+          "rpy": [0, 0, 0]
+        }
+      }
+    }
+  ],
+  "joints": [
+    {
+      "name": "shoulder",
+      "type": "continuous",
+      "parent": "base",
+      "child": "upper_arm",
+      "origin": {
+        "xyz": [0, 0, 0.5],
+        "rpy": [0, 0, 0]
+      },
+      "axis": [0, 0, 1]
+    },
+    {
+      "name": "elbow",
+      "type": "continuous",
+      "parent": "upper_arm",
+      "child": "lower_arm",
+      "origin": {
+        "xyz": [0.5, 0, 0],
+        "rpy": [0, 0, 0]
+      },
+      "axis": [0, 0, 1]
+    },
+    {
+      "name": "wrist",
+      "type": "prismatic",
+      "parent": "lower_arm",
+      "child": "tool",
+      "origin": {
+        "xyz": [0.5, 0, 0],
+        "rpy": [0, 0, 0]
+      },
+      "axis": [0, 0, -1],
+      "limits": {
+        "lower": 0,
+        "upper": 1
+      }
+    }
+  ]
+}

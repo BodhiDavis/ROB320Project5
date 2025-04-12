@@ -1,0 +1,10 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "module load gcc/11 && export CC=\"/usr/um/gcc-11.3.0/bin/gcc\" && export CXX=\"/usr/um/gcc-11.3.0/bin/g++\" && mkdir -p debug && cd debug && cmake  -DCMAKE_BUILD_TYPE=Debug .. && make"
+        }
+    ]
+}
