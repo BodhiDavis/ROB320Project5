@@ -35,9 +35,9 @@ using response = rix::msg::iksrv::IKResponse;
 /**
  * TODO: Declare any necessary classes or functions here.
  */
-class IKServiceNode {
+class IKService {
     public:
-        IKServiceNode(const std::string& jrdf_file) {
+        IKService(const std::string& jrdf_file) {
             // Load the robot description from JRDF
             std::ifstream file(jrdf_file);
             if (!file.is_open()) {
@@ -67,49 +67,41 @@ class IKServiceNode {
         
         // Start the service node
         void run() {
-            Node::spin(true); // Block until shutdown
+            Node::spin(true);
         }
         
     private:
         std::unique_ptr<rix::rdf::Tree> tree;
         std::unique_ptr<rix::rdf::IKSolver> solver;
         Service service;
-        std::mutex solver_mutex; // Protect against concurrent requests
+        std::mutex solver_mutex; 
         
-        // Handle incoming IK requests
         bool handle_ik_request(const request& req, response& res) {
             std::lock_guard<std::mutex> lock(solver_mutex);
-            
             try {
                 Log::info << "Received IK request for end effector: " << req.end_effector << std::endl;
                 
-                // Convert Transform message to Eigen::Affine3d
                 Eigen::Affine3d goal_pose = Eigen::Affine3d::Identity();
-                
-                // Set position
                 goal_pose.translation() = Eigen::Vector3d(
                     req.goal.translation.x, 
                     req.goal.translation.y, 
                     req.goal.translation.z
                 );
-                
-                // Set orientation (from quaternion)
+
                 Eigen::Quaterniond q(
                     req.goal.rotation.w,
                     req.goal.rotation.x, 
                     req.goal.rotation.y, 
                     req.goal.rotation.z
                 );
-                goal_pose.linear() = q.toRotationMatrix();
                 
-                // Set debug flag in response
+                goal_pose.linear() = q.toRotationMatrix();
                 res.debug = req.debug;
                 
-                // Initialize convergence flag
                 bool converged = false;
                 
                 if (req.debug) {
-                    //TODO If debug is true, use solve_with_trajectory to get intermediate steps
+                    //TODO If debug is true, use solve_with_trajectory
                     std::vector<JS> trajectory = solver->solve_with_trajectory(
                         req.end_effector,
                         goal_pose,
@@ -120,7 +112,6 @@ class IKServiceNode {
                         converged
                     );
                     
-                    // Set the result (final configuration) and all intermediate steps
                     if (!trajectory.empty()) {
                         res.result = trajectory.back();
                         res.steps = trajectory;
@@ -128,7 +119,7 @@ class IKServiceNode {
                 } 
                 
                 else {
-                    //TODO If debug is false, just solve for final configuration
+                    //TODO If debug is false, use solve()
                     res.result = solver->solve(
                         req.end_effector,
                         goal_pose,
@@ -174,7 +165,7 @@ int main(int argc, char **argv) {
 
     try {
         // Create and start the IK service
-        IKServiceNode service_node(jrdf_file);
+        IKService service_node(jrdf_file);
         service_node.run();
     } catch (const std::exception& e) {
         Log::error << "Error: " << e.what() << std::endl;
